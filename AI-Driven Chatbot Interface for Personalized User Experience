@@ -1,0 +1,149 @@
+Front-End (HTML, CSS, JavaScript)
+index.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-Driven Chatbot</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="chat-container">
+        <div id="chatbox">
+            <div id="messages"></div>
+        </div>
+        <input type="text" id="userInput" placeholder="Type a message..." autofocus>
+        <button id="sendBtn">Send</button>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
+styles.css
+body {
+    font-family: Arial, sans-serif;
+    background: #f4f4f4;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+.chat-container {
+    background: #fff;
+    width: 400px;
+    height: 600px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+#chatbox {
+    flex-grow: 1;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+#messages {
+    display: flex;
+    flex-direction: column;
+}
+
+.message {
+    margin-bottom: 10px;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.user-message {
+    align-self: flex-end;
+    background: #007bff;
+    color: #fff;
+}
+
+.bot-message {
+    align-self: flex-start;
+    background: #e0e0e0;
+}
+
+input[type="text"], button {
+    width: 100%;
+    padding: 15px;
+    border: none;
+    outline: none;
+}
+
+button {
+    background: #007bff;
+    color: #fff;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #0056b3;
+}
+script.js
+document.getElementById('sendBtn').addEventListener('click', function() {
+    sendMessage();
+});
+
+document.getElementById('userInput').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        sendMessage();
+    }
+});
+
+function sendMessage() {
+    const userInput = document.getElementById('userInput').value;
+    if (userInput.trim() !== '') {
+        displayMessage(userInput, 'user');
+        document.getElementById('userInput').value = '';
+        
+        fetch('process.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ message: userInput })
+        })
+        .then(response => response.json())
+        .then(data => {
+            displayMessage(data.reply, 'bot');
+        });
+    }
+}
+
+function displayMessage(message, type) {
+    const messageElement = document.createElement('div');
+    messageElement.classList.add('message', type === 'user' ? 'user-message' : 'bot-message');
+    messageElement.innerText = message;
+    document.getElementById('messages').appendChild(messageElement);
+    document.getElementById('chatbox').scrollTop = document.getElementById('chatbox').scrollHeight;
+}
+Back-End (PHP)
+process.php
+<?php
+header('Content-Type: application/json');
+
+$data = json_decode(file_get_contents('php://input'), true);
+$message = $data['message'];
+
+$reply = getBotResponse($message);
+
+echo json_encode(['reply' => $reply]);
+
+function getBotResponse($message) {
+    // Simple keyword-based responses
+    $responses = [
+        'hello' => 'Hello! How can I help you today?',
+        'how are you' => 'I am just a bot, but I am functioning properly!',
+        'bye' => 'Goodbye! Have a great day!'
+    ];
+
+    $message = strtolower(trim($message));
+    return isset($responses[$message]) ? $responses[$message] : "I am sorry, I don't understand that.";
+}
+?>
+The objective of the project titled "AI-Driven Chatbot Interface for Personalized User Experience" is to develop a sophisticated front-end application that leverages artificial intelligence to create a dynamic and personalized user interaction platform
